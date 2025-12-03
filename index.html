@@ -99,7 +99,8 @@
   #success-view {
       display: none;
       flex-direction: column;
-      align-items: center;
+      align-items: center; /* 這是置中的關鍵 */
+      justify-content: center;
   }
   
   .check-icon {
@@ -113,7 +114,8 @@
       background: #003366; color: white; border: none; padding: 15px 35px; 
       border-radius: 6px; font-size: 18px; font-weight: bold; cursor: pointer;
       box-shadow: 0 4px 10px rgba(0, 51, 102, 0.3); margin-top: 20px;
-      display: flex; align-items: center; gap: 10px; transition: transform 0.2s, background 0.2s;
+      display: flex; align-items: center; justify-content: center;
+      gap: 10px; transition: transform 0.2s, background 0.2s;
   }
   .open-report-btn:hover { background: #002244; transform: translateY(-2px); }
 
@@ -161,16 +163,17 @@
     <h2>解題分析完成</h2>
     <p style="color:#555;">您的數學解決方案與 TI-Nspire 操作指引已準備就緒。</p>
     
-    <Center></Center><button class="open-report-btn" onclick="openReportWindow()">
+    <button class="open-report-btn" onclick="openReportWindow()">
         📄 檢視完整詳解
-    </button></center>
+    </button>
     
     <button class="reset-btn" onclick="resetApp()">計算下一題</button>
 </div>
 
 <script>
     // 🟢 設定區：數學教授 Persona 🟢
-    const SYSTEM_PROMPT = "你是一位資深的大學數學教授，同時是 TI-Nspire CX II CAS 圖形計算機的頂尖專家。請協助使用者解決微積分、線性代數、統計學、微分方程及各類數學建模問題。\n\n回答規範：\n1. 【邏輯嚴謹】：解題時請列出詳細的數學推導步驟，不要只給答案。\n2. 【工具整合】：針對運算部分，務必提供 TI-Nspire CX II CAS 的操作指引或 CAS 語法。例如：`Solve(x^2-5=0, x)`、`nfMax(func, x)`、`linSolve(sys, vars)`、`eigVc(matrix)` 等。\n3. 【格式】：所有數學公式請使用 一般語法（例如 x^2）。\n4. 【圖形輔助】：若題目涉及函數圖形，請描述如何在計算機上設定視窗 (Window Settings) 與繪圖。\n5. 語氣保持學術專業但樂於教學。";
+    // 修改 System Prompt 以確保不輸出 LaTeX $ 符號
+    const SYSTEM_PROMPT = "你是一位資深的大學數學教授，同時是 TI-Nspire CX II CAS 圖形計算機的頂尖專家。請協助使用者解決微積分、線性代數、統計學、微分方程及各類數學建模問題。\n\n回答規範：\n1. 【邏輯嚴謹】：解題時請列出詳細的數學推導步驟，不要只給答案。\n2. 【工具整合】：針對運算部分，務必提供 TI-Nspire CX II CAS 的操作指引或 CAS 語法。例如：`Solve(x^2-5=0, x)`、`nfMax(func, x)`、`linSolve(sys, vars)` 等。\n3. 【格式限制】：請使用自然的數學顯示方式或程式語法（例如 x^2, sqrt(x)），**絕對不要**使用 LaTeX 的 $ 符號包覆公式。\n4. 【圖形輔助】：若題目涉及函數圖形，請描述如何在計算機上設定視窗 (Window Settings) 與繪圖。\n5. 語氣保持學術專業但樂於教學。";
     
     const WORKER_URL = "https://my-gemini-proxy.rockjonce.workers.dev"; 
 
@@ -311,15 +314,13 @@
             return;
         }
 
-        // 包含 MathJax 的 Header，確保數學公式漂亮呈現
+        // 移除 MathJax 以確保不顯示也不處理 LaTeX $ 符號
         const reportContent = `
             <!DOCTYPE html>
             <html lang="zh-TW">
             <head>
                 <meta charset="UTF-8">
                 <title>數學實驗室詳細報告</title>
-                <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"><\/script>
-                <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"><\/script>
                 <style>
                     body { font-family: "Times New Roman", "Microsoft JhengHei", serif; max-width: 850px; margin: 40px auto; padding: 20px; color: #222; line-height: 1.8; }
                     h1 { text-align: center; color: #003366; border-bottom: 3px solid #003366; padding-bottom: 20px; font-weight: bold; }
@@ -375,4 +376,4 @@
     }
 </script>
 </body>
-</html>
+</html>'>
