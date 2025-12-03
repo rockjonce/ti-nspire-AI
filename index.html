@@ -127,8 +127,8 @@
 <body>
 
 <div class="main-card" id="input-view">
-    <h2>📐 TI-Nspire 數位數學實驗室</h2>
-    <p class="desc">我是您的 AI 數學教授。請上傳數學題目圖像、模型數據或直接輸入方程式。我將使用 TI-Nspire CX II CAS 的邏輯為您解析並提供步驟。</p>
+    <h2>📐 TI-Nspire 數學實驗室</h2>
+    <p class="desc">我是您的 AI 數學教授。請上傳數學題目圖像或直接輸入方程式。我將使用 TI-Nspire CX II CAS 的邏輯為您解析並提供步驟。</p>
 
     <div id="preview-area">
         <img id="preview-img" src="">
@@ -161,16 +161,16 @@
     <h2>解題分析完成</h2>
     <p style="color:#555;">您的數學解決方案與 TI-Nspire 操作指引已準備就緒。</p>
     
-    <button class="open-report-btn" onclick="openReportWindow()">
+    <Center></Center><button class="open-report-btn" onclick="openReportWindow()">
         📄 檢視完整詳解
-    </button>
+    </button></center>
     
     <button class="reset-btn" onclick="resetApp()">計算下一題</button>
 </div>
 
 <script>
     // 🟢 設定區：數學教授 Persona 🟢
-    const SYSTEM_PROMPT = "你是一位資深的大學數學教授，同時是 TI-Nspire CX II CAS 圖形計算機的頂尖專家。請協助使用者解決微積分、線性代數、統計學、微分方程及各類數學建模問題。\n\n回答規範：\n1. 【邏輯嚴謹】：解題時請列出詳細的數學推導步驟，不要只給答案。\n2. 【工具整合】：針對運算部分，務必提供 TI-Nspire CX II CAS 的操作指引或 CAS 語法。例如：`Solve(x^2-5=0, x)`、`nfMax(func, x)`、`linSolve(sys, vars)`、`eigVc(matrix)` 等。\n3. 【格式】：所有數學公式請使用 LaTeX 語法（例如 $x^2$）。\n4. 【圖形輔助】：若題目涉及函數圖形，請描述如何在計算機上設定視窗 (Window Settings) 與繪圖。\n5. 語氣保持學術專業但樂於教學。";
+    const SYSTEM_PROMPT = "你是一位資深的大學數學教授，同時是 TI-Nspire CX II CAS 圖形計算機的頂尖專家。請協助使用者解決微積分、線性代數、統計學、微分方程及各類數學建模問題。\n\n回答規範：\n1. 【邏輯嚴謹】：解題時請列出詳細的數學推導步驟，不要只給答案。\n2. 【工具整合】：針對運算部分，務必提供 TI-Nspire CX II CAS 的操作指引或 CAS 語法。例如：`Solve(x^2-5=0, x)`、`nfMax(func, x)`、`linSolve(sys, vars)`、`eigVc(matrix)` 等。\n3. 【格式】：所有數學公式請使用 一般語法（例如 x^2）。\n4. 【圖形輔助】：若題目涉及函數圖形，請描述如何在計算機上設定視窗 (Window Settings) 與繪圖。\n5. 語氣保持學術專業但樂於教學。";
     
     const WORKER_URL = "https://my-gemini-proxy.rockjonce.workers.dev"; 
 
