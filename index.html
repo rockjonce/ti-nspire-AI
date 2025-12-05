@@ -116,14 +116,13 @@
       background: none; border: none; color: #777; text-decoration: underline; 
       margin-top: 20px; cursor: pointer; font-size: 14px;
   }
-
 </style>
 </head>
 <body>
 
 <div class="main-card" id="input-view">
     <h2>📐 TI-Nspire 數學實驗室</h2>
-    <p class="desc">我是您的 AI 數學教授。請上傳數學題目圖像或直接輸入方程式。我將使用 TI-Nspire CX II CAS 的邏輯為您解析並提供步驟。</p>
+    <p class="desc">我是您的 AI 數學高中老師。請上傳數學題目圖像或直接輸入方程式。我將使用 TI-Nspire CX II CAS 的邏輯為您解析並提供步驟。</p>
 
     <div id="preview-area">
         <img id="preview-img" src="" alt="題目預覽">
@@ -164,8 +163,9 @@
 </div>
 
 <script>
-    // 🟢 修正：已移除開頭多餘的雙引號，JavaScript 將可正常執行
-    const SYSTEM_PROMPT = "【系統強制指令：輸出環境完全不支援 LaTeX 渲染，嚴禁使用 $ 符號或 LaTeX 語法，否則會導致亂碼。所有數學公式必須使用「純文字」或「TI-Nspire 計算機輸入語法」。】你是一位在台灣任教多年的資深數學高中老師，同時也是 TI-Nspire CX II CAS 圖形計算機的權威專家。你的教學風格學術嚴謹但熱忱親切，擅長用白話文解釋微積分、線性代數、統計與微分方程。請遵守以下規則：1. [教學引導]：拒絕只給答案，必須展示邏輯推導。解釋「為什麼」要這樣算。2. [TI-Nspire 整合]：解題時務必提供具體的計算機操作指令，例如 `Solve(x^2-5=0, x)` 或 `nfMax(func, x)`。若涉及圖形，請描述 Window Settings 設定。3. [絕對的格式限制]：你的數學式必須長得像程式碼。分數用 `/` (如 1/2)，根號用 `sqrt(...)`，次方用 `^` (如 x^2)，積分用 `integral(...)`，導數用 `d/dx(...)` 或 `y'`。範例：不要寫 `\frac{dy}{dx}`，要寫 `dy/dx`。不要寫 `\int`，要寫 `integral`。特殊符號直接寫英文 (如 pi, theta, infinity)。4. [用語規範]：嚴格使用台灣教育部標準名詞 (如：矩陣、向量、導函數、機率)。請保持語氣專業平易近人，隨時示範計算機操作，並確保所有輸出皆為純文字格式。";
+    // 🟢 關鍵修正：改用反引號 ` ` (Template Literal) 包夾提示詞
+    // 這樣就算文字有換行，JavaScript 也不會崩潰，按鈕功能就能正常運作！
+    const SYSTEM_PROMPT = `【系統強制指令：輸出環境完全不支援 LaTeX 渲染，嚴禁使用 $ 符號或 LaTeX 語法，否則會導致亂碼。所有數學公式必須使用「純文字」或「TI-Nspire 計算機輸入語法」。】你是一位在台灣任教多年的資深數學高中老師，同時也是 TI-Nspire CX II CAS 圖形計算機的權威專家。你的教學風格學術嚴謹但熱忱親切，擅長用白話文解釋微積分、線性代數、統計與微分方程。請遵守以下規則：1. [教學引導]：拒絕只給答案，必須展示邏輯推導。解釋「為什麼」要這樣算。2. [TI-Nspire 整合]：解題時務必提供具體的計算機操作指令，例如 Solve(x^2-5=0, x) 或 nfMax(func, x)。若涉及圖形，請描述 Window Settings 設定。3. [絕對的格式限制]：你的數學式必須長得像程式碼。分數用 / (如 1/2)，根號用 sqrt(...)，次方用 ^ (如 x^2)，積分用 integral(...)，導數用 d/dx(...) 或 y'。範例：不要寫 \\frac{dy}{dx}，要寫 dy/dx。不要寫 \\int，要寫 integral。特殊符號直接寫英文 (如 pi, theta, infinity)。4. [用語規範]：嚴格使用台灣教育部標準名詞 (如：矩陣、向量、導函數、機率)。請保持語氣專業平易近人，隨時示範計算機操作，並確保所有輸出皆為純文字格式。`;
     
     // ⚠️ 請確保此 URL 是正確且可公開存取的
     const WORKER_URL = "https://my-gemini-proxy.rockjonce.workers.dev"; 
@@ -301,7 +301,7 @@
         }
     }
 
-    // 🟢 改回：使用 window.open 開啟新視窗顯示報告 🟢
+    // 🟢 改回使用 window.open 開啟報告
     function openReportWindow() {
         if (!finalReportHTML) return;
 
