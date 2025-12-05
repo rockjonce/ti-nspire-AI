@@ -12,7 +12,7 @@
     display: flex; flex-direction: column; 
     align-items: center; justify-content: center;
     height: 100vh;
-    overflow: hidden;
+    overflow: hidden; /* 防止雙重卷軸 */
   }
 
   /* 🟢 主要容器 🟢 */
@@ -24,7 +24,7 @@
       box-shadow: 0 4px 15px rgba(0,0,0,0.1);
       text-align: center;
       transition: all 0.3s ease;
-      border-top: 5px solid #003366; /* 學術深藍 */
+      border-top: 5px solid #003366;
   }
 
   h2 { margin-top: 0; color: #003366; margin-bottom: 15px; font-weight: bold; letter-spacing: 1px;}
@@ -37,8 +37,8 @@
     align-items: center; gap: 15px; border: 1px solid #ddd;
     justify-content: center;
   }
-  
-  #preview-img { height: 80px; border: 1px solid #eee; display: none;}
+   
+  #preview-img { height: 80px; border: 1px solid #eee; display: none; object-fit: contain;}
   #preview-pdf { 
       display: none; height: 60px; width: 60px; background: #b30000; color: white;
       border-radius: 4px; text-align: center; line-height: 60px; font-weight: bold; font-size: 14px;
@@ -70,7 +70,7 @@
     border-radius: 4px; transition: background 0.2s;
   }
   .icon-btn:hover { background: #d0dbe7; }
-  
+   
   button#send-btn { 
     background-color: #003366; color: white; border: none; 
     padding: 12px 25px; border-radius: 4px; cursor: pointer; font-size: 16px; white-space: nowrap;
@@ -85,29 +85,22 @@
       background: rgba(255,255,255,0.98); z-index: 2000;
       flex-direction: column; align-items: center; justify-content: center;
   }
-  
   .spinner {
       width: 50px; height: 50px; border: 4px solid #eee; border-top: 4px solid #003366;
       border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 15px;
   }
   @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-  
   .loading-text { color: #003366; font-weight: bold; font-size: 18px; letter-spacing: 1px; animation: pulse 1.5s infinite; }
   @keyframes pulse { 0% { opacity: 0.6; } 50% { opacity: 1; } 100% { opacity: 0.6; } }
 
   /* 🟢 結果區 (Success View) 🟢 */
   #success-view {
-      display: none;
-      flex-direction: column;
-      align-items: center; /* 這是置中的關鍵 */
-      justify-content: center;
+      display: none; flex-direction: column; align-items: center; justify-content: center;
   }
-  
   .check-icon {
       font-size: 60px; color: #003366; margin-bottom: 15px;
       animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
   }
-  
   @keyframes popIn { from { transform: scale(0); opacity: 0; } to { transform: scale(1); opacity: 1; } }
 
   .open-report-btn {
@@ -124,16 +117,45 @@
       margin-top: 20px; cursor: pointer; font-size: 14px;
   }
 
+  /* 🟢 新增：Iframe 友善的 Modal (彈出層) 樣式 🟢 */
+  #report-modal {
+      display: none; /* 預設隱藏 */
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0,0,0,0.5); z-index: 3000;
+      align-items: center; justify-content: center;
+  }
+  .modal-content {
+      background: white; width: 90%; height: 90%; max-width: 850px;
+      border-radius: 8px; position: relative; display: flex; flex-direction: column;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+  }
+  .modal-header {
+      padding: 15px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: center;
+      background: #f8f9fa; border-radius: 8px 8px 0 0;
+  }
+  .modal-title { font-weight: bold; color: #003366; font-size: 18px; }
+  .close-modal-btn {
+      background: none; border: none; font-size: 24px; cursor: pointer; color: #666;
+  }
+  .modal-body {
+      flex: 1; padding: 20px; overflow-y: auto; text-align: left; /* 內容靠左 */
+  }
+  /* 報告內文樣式 */
+  .modal-body h1 { text-align: center; color: #003366; border-bottom: 2px solid #003366; padding-bottom: 10px; font-size: 24px; }
+  .modal-body h2 { color: #003366; background: #f4f4f4; padding: 8px; border-left: 4px solid #cc0000; margin-top: 20px; font-size: 18px; }
+  .modal-body code { background: #eee; padding: 2px 5px; border-radius: 3px; font-family: monospace; color: #003366; }
+  .img-ref { max-width: 100%; border: 1px solid #ddd; margin: 10px 0; display: block; }
+
 </style>
 </head>
 <body>
 
 <div class="main-card" id="input-view">
     <h2>📐 TI-Nspire 數學實驗室</h2>
-    <p class="desc">我是您的 AI 數學老師。請上傳數學題目圖像或直接輸入方程式。我將使用 TI-Nspire CX II CAS 的邏輯為您解析並提供步驟。</p>
+    <p class="desc">我是您的 AI 數學教授。請上傳數學題目圖像或直接輸入方程式。我將使用 TI-Nspire CX II CAS 的邏輯為您解析並提供步驟。</p>
 
     <div id="preview-area">
-        <img id="preview-img" src="">
+        <img id="preview-img" src="" alt="題目預覽">
         <div id="preview-pdf">PDF</div>
         <span id="file-name-preview">filename.pdf</span>
         <button id="remove-img-btn" onclick="clearFile()">×</button>
@@ -142,7 +164,7 @@
     <div class="input-group">
         <input type="file" id="file-input" accept="image/*, application/pdf" style="display: none;" onchange="handleFileSelect(this)">
         
-        <button class="icon-btn" onclick="document.getElementById(&quot;file-input&quot;).click()" title="上傳題目/數據">
+        <button class="icon-btn" onclick="triggerFileUpload()" title="上傳題目/數據">
             📂
         </button>
         
@@ -163,20 +185,31 @@
     <h2>解題分析完成</h2>
     <p style="color:#555;">您的數學解決方案與 TI-Nspire 操作指引已準備就緒。</p>
     
-    <button class="open-report-btn" onclick="openReportWindow()">
+    <button class="open-report-btn" onclick="showModalReport()">
         📄 檢視完整詳解
     </button>
     
     <button class="reset-btn" onclick="resetApp()">計算下一題</button>
 </div>
 
+<div id="report-modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <span class="modal-title">TI-Nspire 分析報告</span>
+            <button class="close-modal-btn" onclick="closeModalReport()">×</button>
+        </div>
+        <div class="modal-body" id="report-content-body">
+            </div>
+    </div>
+</div>
+
 <script>
-    // 🟢 設定區：數學教授 Persona 🟢
-    // 修改 System Prompt 以確保不輸出 LaTeX $ 符號
-    const SYSTEM_PROMPT = ""【系統強制指令：輸出環境完全不支援 LaTeX 渲染，嚴禁使用 $ 符號或 LaTeX 語法，否則會導致亂碼。所有數學公式必須使用「純文字」或「TI-Nspire 計算機輸入語法」。】你是一位在台灣任教多年的資深數學高中老師，同時也是 TI-Nspire CX II CAS 圖形計算機的權威專家。你的教學風格學術嚴謹但熱忱親切，擅長用白話文解釋微積分、線性代數、統計與微分方程。請遵守以下規則：1. [教學引導]：拒絕只給答案，必須展示邏輯推導。解釋「為什麼」要這樣算。2. [TI-Nspire 整合]：解題時務必提供具體的計算機操作指令，例如 `Solve(x^2-5=0, x)` 或 `nfMax(func, x)`。若涉及圖形，請描述 Window Settings 設定。3. [絕對的格式限制]：你的數學式必須長得像程式碼。分數用 `/` (如 1/2)，根號用 `sqrt(...)`，次方用 `^` (如 x^2)，積分用 `integral(...)`，導數用 `d/dx(...)` 或 `y'`。範例：不要寫 `\frac{dy}{dx}`，要寫 `dy/dx`。不要寫 `\int`，要寫 `integral`。特殊符號直接寫英文 (如 pi, theta, infinity)。4. [用語規範]：嚴格使用台灣教育部標準名詞 (如：矩陣、向量、導函數、機率)。請保持語氣專業平易近人，隨時示範計算機操作，並確保所有輸出皆為純文字格式。";
+    // 🟢 修正：移除了開頭多餘的雙引號，確保 JS 正常執行
+    const SYSTEM_PROMPT = "【系統強制指令：輸出環境完全不支援 LaTeX 渲染，嚴禁使用 $ 符號或 LaTeX 語法，否則會導致亂碼。所有數學公式必須使用「純文字」或「TI-Nspire 計算機輸入語法」。】你是一位在台灣任教多年的資深數學高中老師，同時也是 TI-Nspire CX II CAS 圖形計算機的權威專家。你的教學風格學術嚴謹但熱忱親切，擅長用白話文解釋微積分、線性代數、統計與微分方程。請遵守以下規則：1. [教學引導]：拒絕只給答案，必須展示邏輯推導。解釋「為什麼」要這樣算。2. [TI-Nspire 整合]：解題時務必提供具體的計算機操作指令，例如 `Solve(x^2-5=0, x)` 或 `nfMax(func, x)`。若涉及圖形，請描述 Window Settings 設定。3. [絕對的格式限制]：你的數學式必須長得像程式碼。分數用 `/` (如 1/2)，根號用 `sqrt(...)`，次方用 `^` (如 x^2)，積分用 `integral(...)`，導數用 `d/dx(...)` 或 `y'`。範例：不要寫 `\frac{dy}{dx}`，要寫 `dy/dx`。不要寫 `\int`，要寫 `integral`。特殊符號直接寫英文 (如 pi, theta, infinity)。4. [用語規範]：嚴格使用台灣教育部標準名詞 (如：矩陣、向量、導函數、機率)。請保持語氣專業平易近人，隨時示範計算機操作，並確保所有輸出皆為純文字格式。";
+    
+    // ⚠️ 請確保此 URL 是正確且可公開存取的 (跨域 CORS 需允許)
     const WORKER_URL = "https://my-gemini-proxy.rockjonce.workers.dev"; 
 
-    // --- 全域變數 ---
     let currentBase64Data = null; 
     let currentMimeType = null;
     let currentFileName = "";
@@ -186,6 +219,11 @@
         document.getElementById("input-view").style.display = (viewName === "input") ? "block" : "none";
         document.getElementById("loading-overlay").style.display = (viewName === "loading") ? "flex" : "none";
         document.getElementById("success-view").style.display = (viewName === "success") ? "block" : "none";
+    }
+
+    // 🟢 新增：安全的觸發上傳
+    function triggerFileUpload() {
+        document.getElementById("file-input").click();
     }
 
     function handleFileSelect(input) {
@@ -207,29 +245,36 @@
                 const previewPdf = document.getElementById("preview-pdf");
                 const nameLabel = document.getElementById("file-name-preview");
 
+                // 重置顯示
+                previewImg.style.display = "none";
+                previewPdf.style.display = "none";
                 previewArea.style.display = "flex";
+                
                 nameLabel.innerText = file.name;
 
                 if (file.type.startsWith("image/")) {
                     previewImg.src = e.target.result;
                     previewImg.style.display = "block";
-                    previewPdf.style.display = "none";
                 } else if (file.type === "application/pdf") {
-                    previewImg.style.display = "none";
                     previewPdf.style.display = "block";
+                } else {
+                    alert("目前僅支援 圖片 或 PDF 檔案解析。");
+                    clearFile();
+                    return;
                 }
                 currentBase64Data = e.target.result.split(",")[1];
             };
+            reader.onerror = function() { alert("檔案讀取失敗"); clearFile(); };
             reader.readAsDataURL(file);
         }
     }
 
     function clearFile() {
-        document.getElementById("file-input").value = "";
+        const fileInput = document.getElementById("file-input");
+        fileInput.value = "";
         document.getElementById("preview-area").style.display = "none";
-        currentBase64Data = null;
-        currentMimeType = null;
-        currentFileName = "";
+        document.getElementById("preview-img").src = "";
+        currentBase64Data = null; currentMimeType = null; currentFileName = "";
     }
 
     function resetApp() {
@@ -240,8 +285,6 @@
 
     async function callGeminiWorker() {
         const userText = document.getElementById("user-input").value.trim();
-        
-        // 檢查是否有輸入或圖片
         if (!userText && !currentBase64Data) {
             alert("請輸入數學題目或上傳圖片/數據");
             return;
@@ -252,144 +295,79 @@
         try {
             let parts = [];
             let finalPrompt = userText;
-            
-            // 若使用者沒輸入文字但有圖，給予預設提示
             if (!finalPrompt) finalPrompt = "請分析這道數學題目並提供詳解。";
 
-            // 組合 System Prompt (建議放在最前)
             if (SYSTEM_PROMPT && SYSTEM_PROMPT.trim() !== "") {
                 finalPrompt = `${SYSTEM_PROMPT}\n\n[使用者問題]: ${finalPrompt}`;
             }
 
             parts.push({ text: finalPrompt });
 
-            // 處理圖片/PDF
             if (currentBase64Data) {
                 parts.push({
-                    inline_data: {
-                        mime_type: currentMimeType,
-                        data: currentBase64Data
-                    }
+                    inline_data: { mime_type: currentMimeType, data: currentBase64Data }
                 });
             }
-
-            console.log("正在發送請求至:", WORKER_URL); // 🟢 偵錯點 1
 
             const response = await fetch(WORKER_URL, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    // 注意: 某些 Proxy 結構可能不同，確保這裡符合您的 Worker 預期
-                    contents: [{ parts: parts }]
-                })
+                body: JSON.stringify({ contents: [{ parts: parts }] })
             });
 
-            console.log("收到回應狀態:", response.status); // 🟢 偵錯點 2
-
-            if (!response.ok) {
-                throw new Error(`伺服器錯誤 (Status: ${response.status})`);
-            }
+            if (!response.ok) throw new Error(`Status: ${response.status}`);
 
             const data = await response.json();
-            console.log("完整回應資料:", data); // 🟢 偵錯點 3
-
-            // 嚴謹檢查資料結構
+            
             if (data.candidates && data.candidates.length > 0 && data.candidates[0].content) {
                 let aiText = data.candidates[0].content.parts[0].text;
-                
-                // 簡易 Markdown 轉 HTML 處理
                 aiText = aiText
-                    .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;") // 防止 XSS
+                    .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
                     .replace(/\*\*(.*?)\*\*/g, "<b>$1</b>")
-                    .replace(/### (.*?)\n/g, "<h3>$1</h3>")
+                    .replace(/### (.*?)\n/g, "<h2>$1</h2>")
                     .replace(/## (.*?)\n/g, "<h2>$1</h2>")
                     .replace(/\n/g, "<br>");
                 
                 finalReportHTML = aiText;
                 switchView("success");
-
             } else {
-                // 處理 API 回傳錯誤 (例如安全性阻擋)
-                console.error("API 回傳結構異常:", data);
-                let errorMsg = "無法解析回應資料";
-                if (data.promptFeedback) {
-                    errorMsg = "請求被模型拒絕 (安全性/阻擋): " + JSON.stringify(data.promptFeedback);
-                }
-                alert("分析失敗: " + errorMsg);
-                switchView("input");
+                throw new Error("無法解析回應資料");
             }
 
         } catch (error) {
-            console.error("連線發生錯誤:", error); // 🟢 偵錯點 4
-            alert("連線錯誤: " + error.message + "\n(請按 F12 查看 Console 詳細錯誤)");
+            console.error(error);
+            alert("分析失敗: " + error.message);
             switchView("input");
         }
     }
-    function openReportWindow() {
+
+    // 🟢 新增：使用 Modal 顯示報告 (Iframe Safe) 🟢
+    function showModalReport() {
         if (!finalReportHTML) return;
-
-        const newWin = window.open("", "_blank");
         
-        if (!newWin) {
-            alert("彈出視窗被瀏覽器攔截，請允許本網站開啟彈窗。");
-            return;
+        const modal = document.getElementById("report-modal");
+        const body = document.getElementById("report-content-body");
+        
+        // 組合報告內容
+        let content = `<h1>🎓 詳細分析報告</h1>`;
+        content += `<div style="text-align:center; color:#666; font-size:12px; margin-bottom:20px;">生成時間：${new Date().toLocaleString()}</div>`;
+        content += finalReportHTML;
+        
+        if (currentBase64Data && currentMimeType.startsWith("image")) {
+            content += `<hr><p style="color:#888; text-align:center;">原始題目影像：</p>
+                        <img src="data:${currentMimeType};base64,${currentBase64Data}" class="img-ref">`;
         }
+        
+        content += `<div style="margin-top:30px; text-align:center;">
+                        <button onclick="window.print()" style="padding:10px 20px; background:#333; color:white; border:none; border-radius:4px; cursor:pointer;">🖨️ 列印此頁</button>
+                    </div>`;
 
-        // 移除 MathJax 以確保不顯示也不處理 LaTeX $ 符號
-        const reportContent = `
-            <!DOCTYPE html>
-            <html lang="zh-TW">
-            <head>
-                <meta charset="UTF-8">
-                <title>數學實驗室詳細報告</title>
-                <style>
-                    body { font-family: "Times New Roman", "Microsoft JhengHei", serif; max-width: 850px; margin: 40px auto; padding: 20px; color: #222; line-height: 1.8; }
-                    h1 { text-align: center; color: #003366; border-bottom: 3px solid #003366; padding-bottom: 20px; font-weight: bold; }
-                    h2 { color: #003366; margin-top: 30px; border-left: 5px solid #cc0000; padding-left: 10px; font-size: 20px; background: #f4f4f4; padding: 8px 10px; }
-                    h3 { color: #444; margin-top: 25px; font-weight: bold; text-decoration: underline; }
-                    b { color: #cc0000; font-weight: bold; }
-                    code { background: #eee; padding: 2px 5px; border-radius: 4px; font-family: monospace; color: #003366; border: 1px solid #ddd; }
-                    .report-container { background: white; padding: 50px; box-shadow: 0 0 25px rgba(0,0,0,0.1); border-radius: 5px; border: 1px solid #ddd; }
-                    .header-info { text-align: center; color: #666; font-size: 14px; margin-bottom: 30px; font-style: italic; }
-                    .img-ref { max-width: 80%; border: 1px solid #ccc; border-radius: 4px; margin: 20px auto; display: block; padding: 5px; }
-                    
-                    @media print {
-                        body { background: white; margin: 0; }
-                        .report-container { box-shadow: none; padding: 0; border: none; }
-                        .no-print { display: none; }
-                    }
-                    
-                    .btn-area { text-align: center; margin-top: 40px; }
-                    .print-btn { background: #333; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; font-size: 16px;}
-                    .print-btn:hover { background: #000; }
-                </style>
-            </head>
-            <body>
-                <div class="report-container">
-                    <h1>🎓 TI-Nspire 數學分析報告</h1>
-                    <div class="header-info">
-                        分析生成時間：${new Date().toLocaleString()} | AI Math Professor
-                    </div>
-                    
-                    <div class="content">
-                        ${finalReportHTML}
-                    </div>
+        body.innerHTML = content;
+        modal.style.display = "flex";
+    }
 
-                    ${currentBase64Data && currentMimeType.startsWith("image") 
-                      ? `<hr><p style="color:#888; text-align:center;">原始題目影像：</p><img src="data:${currentMimeType};base64,${currentBase64Data}" class="img-ref">` 
-                      : ""}
-                </div>
-
-                <div class="btn-area no-print">
-                    <button class="print-btn" onclick="window.print()">🖨️ 列印報告 / 另存 PDF</button>
-                    <p style="color:#888; font-size:12px; margin-top:10px;">請按 Ctrl+P (或 Command+P) 進行列印</p>
-                </div>
-            </body>
-            </html>
-        `;
-
-        newWin.document.write(reportContent);
-        newWin.document.close();
+    function closeModalReport() {
+        document.getElementById("report-modal").style.display = "none";
     }
 
     function handleEnter(e) {
