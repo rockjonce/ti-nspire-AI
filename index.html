@@ -273,6 +273,7 @@
     async function callGeminiWorker() {
         const userText = document.getElementById("user-input").value.trim();
         
+        // 檢查是否有輸入或圖片
         if (!userText && !currentBase64Data) {
             alert("請輸入數學題目或上傳圖片/數據");
             return;
@@ -283,14 +284,18 @@
         try {
             let parts = [];
             let finalPrompt = userText;
+            
+            // 若使用者沒輸入文字但有圖，給予預設提示
             if (!finalPrompt) finalPrompt = "請分析這道數學題目並提供詳解。";
 
+            // 組合 System Prompt (建議放在最前)
             if (SYSTEM_PROMPT && SYSTEM_PROMPT.trim() !== "") {
-                finalPrompt = `[系統指令: ${SYSTEM_PROMPT}]\n\n使用者問題: ${finalPrompt}`;
+                finalPrompt = `${SYSTEM_PROMPT}\n\n[使用者問題]: ${finalPrompt}`;
             }
 
             parts.push({ text: finalPrompt });
 
+            // 處理圖片/PDF
             if (currentBase64Data) {
                 parts.push({
                     inline_data: {
@@ -300,41 +305,58 @@
                 });
             }
 
+            console.log("正在發送請求至:", WORKER_URL); // 🟢 偵錯點 1
+
             const response = await fetch(WORKER_URL, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
+                    // 注意: 某些 Proxy 結構可能不同，確保這裡符合您的 Worker 預期
                     contents: [{ parts: parts }]
                 })
             });
 
-            const data = await response.json();
+            console.log("收到回應狀態:", response.status); // 🟢 偵錯點 2
 
-            if (data.candidates && data.candidates[0].content) {
+            if (!response.ok) {
+                throw new Error(`伺服器錯誤 (Status: ${response.status})`);
+            }
+
+            const data = await response.json();
+            console.log("完整回應資料:", data); // 🟢 偵錯點 3
+
+            // 嚴謹檢查資料結構
+            if (data.candidates && data.candidates.length > 0 && data.candidates[0].content) {
                 let aiText = data.candidates[0].content.parts[0].text;
-                // 簡易 Markdown 處理
-                aiText = aiText.replace(/\*\*(.*?)\*\*/g, "<b>$1</b>")
-                               .replace(/### (.*?)\n/g, "<h3>$1</h3>")
-                               .replace(/## (.*?)\n/g, "<h2>$1</h2>")
-                               .replace(/\n/g, "<br>");
+                
+                // 簡易 Markdown 轉 HTML 處理
+                aiText = aiText
+                    .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;") // 防止 XSS
+                    .replace(/\*\*(.*?)\*\*/g, "<b>$1</b>")
+                    .replace(/### (.*?)\n/g, "<h3>$1</h3>")
+                    .replace(/## (.*?)\n/g, "<h2>$1</h2>")
+                    .replace(/\n/g, "<br>");
                 
                 finalReportHTML = aiText;
-                
                 switchView("success");
 
             } else {
-                let errorMsg = "未知錯誤";
-                if (data.error) errorMsg = JSON.stringify(data.error);
+                // 處理 API 回傳錯誤 (例如安全性阻擋)
+                console.error("API 回傳結構異常:", data);
+                let errorMsg = "無法解析回應資料";
+                if (data.promptFeedback) {
+                    errorMsg = "請求被模型拒絕 (安全性/阻擋): " + JSON.stringify(data.promptFeedback);
+                }
                 alert("分析失敗: " + errorMsg);
                 switchView("input");
             }
 
         } catch (error) {
-            alert("連線錯誤: " + error.message);
+            console.error("連線發生錯誤:", error); // 🟢 偵錯點 4
+            alert("連線錯誤: " + error.message + "\n(請按 F12 查看 Console 詳細錯誤)");
             switchView("input");
         }
     }
-
     function openReportWindow() {
         if (!finalReportHTML) return;
 
